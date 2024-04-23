@@ -25,8 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
-
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +47,8 @@
 
 /* USER CODE BEGIN PV */
 
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +56,8 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 extern void app_start(void);
+//extern void app_loop(void) __attribute__((always_inline));
+extern inline void app_loop(void) ;
 
 
 /* USER CODE END PFP */
@@ -100,7 +103,10 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
+//  HAL_TIM_Base_Start_IT(&htim6); // Enable the interrupt & start the timer
+//  HAL_TIM_Base_Start(&htim6);
   app_start();
+
 
   /* USER CODE END 2 */
 
@@ -108,6 +114,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	 app_loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -162,6 +169,19 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void testTick(){
+	char buf_tx[100];
+	  int len;
+	  int tmp;
+	  tmp = HAL_GetTick();
+	  len = sprintf(buf_tx, "tick1 %d\r\n", tmp);
+	  CDC_Transmit_FS((uint8_t*)buf_tx, len);
+	  HAL_Delay(200);
+	  len = sprintf(buf_tx, "tick2 %d\r\n", (int)HAL_GetTick());
+	  CDC_Transmit_FS((uint8_t*)buf_tx, len);
+	  HAL_Delay(200);
+}
 
 
 

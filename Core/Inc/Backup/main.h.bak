@@ -54,6 +54,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -77,22 +78,30 @@ void Error_Handler(void);
 #define PAUSE_GPIO_Port GPIOB
 #define BTN_UP_Pin GPIO_PIN_1
 #define BTN_UP_GPIO_Port GPIOB
+#define BTN_UP_EXTI_IRQn EXTI1_IRQn
 #define BTN_DOWN_Pin GPIO_PIN_2
 #define BTN_DOWN_GPIO_Port GPIOB
+#define BTN_DOWN_EXTI_IRQn EXTI2_IRQn
 #define ENDER_ENDSTOP_Pin GPIO_PIN_3
 #define ENDER_ENDSTOP_GPIO_Port GPIOB
+#define ENDER_ENDSTOP_EXTI_IRQn EXTI3_IRQn
 #define BTN_BACK_Pin GPIO_PIN_4
 #define BTN_BACK_GPIO_Port GPIOB
+#define BTN_BACK_EXTI_IRQn EXTI4_IRQn
 #define BTN_IN_Pin GPIO_PIN_5
 #define BTN_IN_GPIO_Port GPIOB
+#define BTN_IN_EXTI_IRQn EXTI9_5_IRQn
 #define ENDER_PE_Pin GPIO_PIN_6
 #define ENDER_PE_GPIO_Port GPIOB
+#define ENDER_PE_EXTI_IRQn EXTI9_5_IRQn
 #define ENDER_LASER_Pin GPIO_PIN_7
 #define ENDER_LASER_GPIO_Port GPIOB
+#define ENDER_LASER_EXTI_IRQn EXTI9_5_IRQn
 #define MOTOR_A_STEP_Pin GPIO_PIN_9
 #define MOTOR_A_STEP_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+
 
 /* USER CODE END Private defines */
 
