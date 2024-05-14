@@ -2,8 +2,8 @@
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	enc_counter = __HAL_TIM_GET_COUNTER(htim);
-	//buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
-	//CDC_Transmit_FS(buf, buflen);
+	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
+	CDC_Transmit_FS(buf, buflen);
 
 }
 
@@ -186,7 +186,7 @@ void zero_btns() {
 	btn_back.Checked = 0;
 }
 
-void showEnc(){
+void showEnc() {
 	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
 	CDC_Transmit_FS(buf, buflen);
 }
@@ -208,6 +208,10 @@ void app_loop(void) {
 	btn_in.Checked = BARR_TEST(State_flag, 18);
 	btn_back.Checked = BARR_TEST(State_flag, 26);
 	Endstop.Checked = BARR_TEST(State_flag, 50);
+
+//	buflen = sprintf((char*) buf, "Current state: %s\n\r",
+//			stateStrings[platenState]);
+//	CDC_Transmit_FS(buf, buflen);
 
 	if (platenState == INIT) {
 
@@ -320,7 +324,7 @@ void app_loop(void) {
 		} else {
 			enc_difference = enc_counter - enc_prev_counter;
 			enc_prev_counter = enc_counter;
-			if (enc_difference > 10) {
+			if (enc_difference > 2 && enc_difference < 500) {
 				buflen = sprintf((char*) buf, "Encoder speed = %d\r\n",
 						(int) enc_difference);
 				CDC_Transmit_FS(buf, buflen);
@@ -357,7 +361,7 @@ void app_loop(void) {
 		}
 
 		if ((HAL_GetTick() - ASF_Start_time_duration > ASF_DURATION_MILLIS)
-				&& ASF_state) {
+				&& ASF_state && ASF_Start_time_duration != 0) {
 
 			ASF_state = 0;
 			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);

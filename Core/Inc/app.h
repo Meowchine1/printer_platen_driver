@@ -62,6 +62,8 @@ typedef enum{   		// Хранит то, что в настоящее время 
 	INIT     // Holding in the front for button press
 } PlatenState;
 
+const char* stateStrings[] = {"SEND_BACK", "SEND_IN", "SEND_UP", "SEND_DOWN", "READY_TO_PRINT", "SCROLLING", "PRINTING", "ROLLER_EXTRACT", "INIT"};
+
 PlatenState platenState = SEND_BACK;
 int32_t stepperPosition;  // Текущее положение шагового двигателя
 int32_t stepperCount;     // Где должен быть шаговый двигатель
