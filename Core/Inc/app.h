@@ -6,13 +6,16 @@
 #include "usb_device.h"
 #include "gpio.h"
 #include "button.h"
-#include "motor.h"
 #include "usbd_cdc_if.h"
 #include "ender.h"
 #include "encoder.h"
+#include "motor.h"
+
+#define TESTING
 
 char buf_tx[100];
-
+uint8_t buflen;
+uint8_t buf[50];
 
 #define SHORT_DURATION 100
 #define LONG_DURATION 3000
@@ -50,9 +53,13 @@ BARR_ELTYPE State_flag [BARR_COUNT];
 typedef enum{   		// Хранит то, что в настоящее время делает стол.
 	SEND_BACK,			// 1 = Необходимо отправить обратно для возвращения при запуске
 	SEND_IN,            // 2 = Отправить стол в
+	SEND_UP,
+	SEND_DOWN,
 	READY_TO_PRINT,     // 3 = Готовность к печати / Печать
+	SCROLLING,
+	PRINTING,
 	ROLLER_EXTRACT,      // 4 = Извлечение валика
-	HOLDING_IN_FRONT     // Holding in the front for button press
+	INIT     // Holding in the front for button press
 } PlatenState;
 
 PlatenState platenState = SEND_BACK;
@@ -69,5 +76,46 @@ int32_t newEncoder;
 uint8_t asfState = 0;
 
 
+
+
+
+// =============================== CONFIGURATION =================================
+
+
+
+long enc_prev_time = 0;
+uint32_t enc_difference = 0;
+uint32_t enc_prev_counter = 0;
+uint32_t enc_counter = 0;
+const uint16_t ENC_FAST_SCROLL_SPEED = 100;
+
+const uint16_t ENC_SCROLL = 1000;
+
+//int16_t count = 0;
+//int16_t position = 0;
+
+//uint32_t bufA[10];
+//uint32_t bufB[10];
+
+const uint32_t TABLE_LENGTH = 50;
+
+const uint16_t PE_ENCODER_COUNT = 300;
+uint16_t PE_Start_count_encoder = 0;
+
+uint32_t PE_Start_time_duration = 0;
+uint32_t ASF_Start_time_duration = 0;
+
+const uint16_t PE_DURATION_MILLIS = 3000;
+const uint16_t ASF_DURATION_MILLIS = 800;
+uint8_t ASF_state = 0;
+uint8_t PE_state = 0;
+
+int height_limit(){
+	return 1;
+}
+
+int putting_forward_limit(){
+	return 1;
+}
 
 

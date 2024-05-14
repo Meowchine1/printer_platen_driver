@@ -82,6 +82,10 @@ void Error_Handler(void);
 #define BTN_DOWN_Pin GPIO_PIN_2
 #define BTN_DOWN_GPIO_Port GPIOB
 #define BTN_DOWN_EXTI_IRQn EXTI2_IRQn
+#define GPIO_OUT_ASF_Pin GPIO_PIN_8
+#define GPIO_OUT_ASF_GPIO_Port GPIOA
+#define GPIO_OUT_PE_Pin GPIO_PIN_9
+#define GPIO_OUT_PE_GPIO_Port GPIOA
 #define ENDER_ENDSTOP_Pin GPIO_PIN_3
 #define ENDER_ENDSTOP_GPIO_Port GPIOB
 #define ENDER_ENDSTOP_EXTI_IRQn EXTI3_IRQn

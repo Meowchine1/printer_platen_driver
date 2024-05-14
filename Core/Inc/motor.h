@@ -1,5 +1,10 @@
 #include <stdint.h>
+
+#include "main.h"
+//#include "stm32g4xx_hal_tim.h"
 #include "stm32g431xx.h"
+
+
 
 #define MOTOR_DIR_FORWARD 1
 #define MOTOR_DIR_REVERSE 0

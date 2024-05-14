@@ -47,7 +47,10 @@
 
 /* USER CODE BEGIN PV */
 
-
+//uint8_t buf[50];
+//
+//uint32_t bufA[10];
+//uint32_t bufB[10];
 
 /* USER CODE END PV */
 
@@ -55,15 +58,34 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-extern void app_start(void);
+extern void app_init(void);
 //extern void app_loop(void) __attribute__((always_inline));
-extern inline void app_loop(void) ;
+extern   void app_loop(void) ;
 
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+//int32_t prevCounter = 0;
+//
+//uint32_t counter = 0;
+//
+//int16_t count = 0;
+//
+//int16_t position = 0;
+//
+//uint8_t buflen;
+//
+//int speed =0;
+
+//void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+//{
+//	counter = __HAL_TIM_GET_COUNTER(htim);
+//	buflen = sprintf((char*)buf, "%d\r\n", (int)counter);
+//	CDC_Transmit_FS(buf, buflen);
+//
+//}
 
 /* USER CODE END 0 */
 
@@ -103,9 +125,9 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
-//  HAL_TIM_Base_Start_IT(&htim6); // Enable the interrupt & start the timer
-//  HAL_TIM_Base_Start(&htim6);
-  app_start();
+  // HAL_TIM_Encoder_Start_DMA(&htim2, TIM_CHANNEL_ALL, bufA, bufB, 2);
+  HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
+  app_init();
 
 
   /* USER CODE END 2 */
@@ -114,7 +136,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	 app_loop();
+     app_loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -21,6 +21,7 @@ typedef struct   {
 	GPIO_TypeDef* Port;
 	uint32_t Press_start_time;
 	uint16_t Send_log;
+	uint8_t Checked;
 } Button_t;
 
 

@@ -1,5 +1,10 @@
 #include <stdint.h>
+
+#include "main.h"
+//#include "stm32g4xx_hal_tim.h"
 #include "stm32g431xx.h"
+
+
 
 #define MOTOR_DIR_FORWARD 1
 #define MOTOR_DIR_REVERSE 0
@@ -8,6 +13,10 @@
 #define MOTOR_DIR_DOWN 0
 
 typedef struct{
+
+	TIM_HandleTypeDef * Tim;
+	uint32_t Channel;
+
 
 	uint16_t ENA_Pin;
 	GPIO_TypeDef* ENA_Port;
