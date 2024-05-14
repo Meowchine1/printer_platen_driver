@@ -2,8 +2,8 @@
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	enc_counter = __HAL_TIM_GET_COUNTER(htim);
-	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
-	CDC_Transmit_FS(buf, buflen);
+	//buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
+	//CDC_Transmit_FS(buf, buflen);
 
 }
 
@@ -186,6 +186,11 @@ void zero_btns() {
 	btn_back.Checked = 0;
 }
 
+void showEnc(){
+	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
+	CDC_Transmit_FS(buf, buflen);
+}
+
 void app_loop(void) {
 	check_debounce_flag(1, btn_up.Pin, btn_up.Port, btn_up.Press_start_time); // btn_up
 	check_debounce_flag(9, btn_down.Pin, btn_down.Port,
@@ -319,28 +324,36 @@ void app_loop(void) {
 				buflen = sprintf((char*) buf, "Encoder speed = %d\r\n",
 						(int) enc_difference);
 				CDC_Transmit_FS(buf, buflen);
+				showEnc();
 
-				PE_Start_count_encoder = enc_counter;
-				PE_Start_time_duration = HAL_GetTick();
-				ASF_Start_time_duration = HAL_GetTick();
-				ASF_state = 1;
-				HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);
-				buflen = sprintf((char*) buf, "ASF включен\r\n");
-				CDC_Transmit_FS(buf, buflen);
+				Start_count_encoder = enc_counter;
 				buflen = sprintf((char*) buf, "Прокрутка перед печатью\r\n");
 				CDC_Transmit_FS(buf, buflen);
+				showEnc();
 				platenState = SCROLLING;
 			}
 
 		}
 	} else if (platenState == SCROLLING) {
 
-		if ((enc_counter - PE_Start_count_encoder
-				> ENC_SCROLL + PE_ENCODER_COUNT) && !PE_state) {
+		if ((enc_counter - Start_count_encoder > PE_ENCODER_COUNT)
+				&& !PE_state) {
 			PE_state = 1;
 			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
 			buflen = sprintf((char*) buf, "PE  включен\r\n");
 			CDC_Transmit_FS(buf, buflen);
+			showEnc();
+		}
+
+		if ((enc_counter - Start_count_encoder > ASF_ENCODER_COUNT)
+				&& !ASF_state) {
+
+			ASF_Start_time_duration = HAL_GetTick();
+			ASF_state = 1;
+			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);
+			buflen = sprintf((char*) buf, "ASF включен\r\n");
+			CDC_Transmit_FS(buf, buflen);
+			showEnc();
 		}
 
 		if ((HAL_GetTick() - ASF_Start_time_duration > ASF_DURATION_MILLIS)
@@ -348,16 +361,17 @@ void app_loop(void) {
 
 			ASF_state = 0;
 			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);
-			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
 			buflen = sprintf((char*) buf, "ASF отключен\r\n");
 			CDC_Transmit_FS(buf, buflen);
+			showEnc();
 		}
 
-		if (enc_counter - PE_Start_count_encoder > 2 * ENC_SCROLL) {
+		if (enc_counter - Start_count_encoder > 2 * ENC_SCROLL) {
 			platenState = PRINTING;
 			enc_prev_time = HAL_GetTick();
 			buflen = sprintf((char*) buf, "Печать начинается\r\n");
 			CDC_Transmit_FS(buf, buflen);
+			showEnc();
 
 		}
 
@@ -372,19 +386,22 @@ void app_loop(void) {
 
 			if (enc_difference > ENC_FAST_SCROLL_SPEED) {
 				platenState = ROLLER_EXTRACT;
+				Start_count_encoder = enc_counter;
 				buflen = sprintf((char*) buf, "Выталкивание валика\r\n");
 				CDC_Transmit_FS(buf, buflen);
+				showEnc();
 			}
 
 		}
 
 	} else if (platenState == ROLLER_EXTRACT) {
-		if ((enc_counter - PE_Start_count_encoder > PE_ENCODER_COUNT)
+		if ((enc_counter - Start_count_encoder > PE_ENCODER_COUNT)
 				&& PE_state) {
 			PE_state = 0;
 			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
 			buflen = sprintf((char*) buf, "PE  отключен\r\n");
 			CDC_Transmit_FS(buf, buflen);
+			showEnc();
 		}
 
 		enc_difference = enc_counter - enc_prev_counter;
@@ -394,6 +411,7 @@ void app_loop(void) {
 			platenState = READY_TO_PRINT; // ОСТАЕТСЯ НА КОНЦЕВИКЕ
 			buflen = sprintf((char*) buf, "Печать закончена\r\n");
 			CDC_Transmit_FS(buf, buflen);
+			showEnc();
 		}
 
 	}

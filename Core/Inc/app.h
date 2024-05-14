@@ -88,8 +88,7 @@ uint32_t enc_difference = 0;
 uint32_t enc_prev_counter = 0;
 uint32_t enc_counter = 0;
 const uint16_t ENC_FAST_SCROLL_SPEED = 100;
-
-const uint16_t ENC_SCROLL = 1000;
+const uint16_t ENC_SCROLL = 1240;
 
 //int16_t count = 0;
 //int16_t position = 0;
@@ -99,8 +98,9 @@ const uint16_t ENC_SCROLL = 1000;
 
 const uint32_t TABLE_LENGTH = 50;
 
-const uint16_t PE_ENCODER_COUNT = 300;
-uint16_t PE_Start_count_encoder = 0;
+const uint16_t PE_ENCODER_COUNT = ENC_SCROLL + 300;
+const uint16_t ASF_ENCODER_COUNT = ENC_SCROLL;
+uint16_t Start_count_encoder = 0;
 
 uint32_t PE_Start_time_duration = 0;
 uint32_t ASF_Start_time_duration = 0;
