@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32g4xx_it.c
-  * @brief   Interrupt Service Routines.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32g4xx_it.c
+ * @brief   Interrupt Service Routines.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -22,6 +22,9 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "config.h"
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,6 +40,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+//enc_increment = enc_counter - enc_prev;
+//	enc_prev = enc_counter;
+//	buflen = sprintf((char*) buf, "enc_counter = %d\r\n", (int) enc_counter);
+//	CDC_Transmit_FS(buf, buflen);
+//
+//	buflen = sprintf((char*) buf, "enc_increment = %d\r\n",
+//			(int) enc_increment);
+//	CDC_Transmit_FS(buf, buflen);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -75,9 +86,8 @@ void NMI_Handler(void)
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
-  {
-  }
+	while (1) {
+	}
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
@@ -321,6 +331,15 @@ void TIM2_IRQHandler(void)
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+//	enc_increment = enc_counter - enc_prev;
+//	enc_prev = enc_counter;
+//	buflen = sprintf((char*) buf, "enc_counter = %d\r\n", (int) enc_counter);
+//	CDC_Transmit_FS(buf, buflen);
+//
+//	buflen = sprintf((char*) buf, "enc_increment = %d\r\n",
+//			(int) enc_increment);
+//	CDC_Transmit_FS(buf, buflen);
 
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);

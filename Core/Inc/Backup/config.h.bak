@@ -1,0 +1,7 @@
+
+
+extern uint32_t enc_prev;
+extern uint32_t enc_increment;
+extern uint32_t enc_counter;
+extern uint8_t buf[50];
+extern uint8_t buflen;

@@ -127,6 +127,7 @@ int main(void)
 
   // HAL_TIM_Encoder_Start_DMA(&htim2, TIM_CHANNEL_ALL, bufA, bufB, 2);
   HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
+  HAL_TIM_Base_Start_IT(&htim6);
   app_init();
 
 

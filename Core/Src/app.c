@@ -1,57 +1,28 @@
 #include "app.h"
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-	enc_counter = __HAL_TIM_GET_COUNTER(htim);
-	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
-	CDC_Transmit_FS(buf, buflen);
+	if (htim->Instance == TIM2) {
+		Enc.enc_counter = __HAL_TIM_GET_COUNTER(htim);
+	}
+//	buflen = sprintf((char*) buf, "%d\r\n", (int) Enc.enc_counter);
+//	CDC_Transmit_FS(buf, buflen);
 
 }
 
-//
-//void update_encoder(Encoder_t *encoder_value, TIM_HandleTypeDef *htim)
-// {
-//	uint32_t temp_counter = __HAL_TIM_GET_COUNTER(htim);
-//
-//    if(temp_counter == encoder_value->last_counter_value){
-//
-//		encoder_value->velocity = 0;
-//
-//	} else if(temp_counter > encoder_value->last_counter_value){
-//
-//		if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)){
-//		  encoder_value->velocity = -encoder_value->last_counter_value -
-//		(__HAL_TIM_GET_AUTORELOAD(htim) - temp_counter);
-//
-//		} else {
-//		  encoder_value->velocity = temp_counter -
-//			   encoder_value->last_counter_value;
-//		}
-//	  } else {
-//		if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)){
-//		encoder_value->velocity = temp_counter -
-//				encoder_value->last_counter_value;
-//
-//		} else {
-//		encoder_value->velocity = temp_counter +
-//		(__HAL_TIM_GET_AUTORELOAD(htim) -
-//				  encoder_value->last_counter_value);
-//		}
-//	   }
-//
-//	encoder_value->position += encoder_value->velocity;
-//	encoder_value->last_counter_value = temp_counter;
-// }
-//
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-//
-//	if(htim == htim6){
-//		  timer_counter = __HAL_TIM_GET_COUNTER(&htim6);
-//		  // measure velocity, position
-//		  update_encoder(&Enc, &htim6);
-//		  int64_t encoder_position = Enc.position;
-//		  int16_t encoder_velocity = Enc.velocity;
-//	}
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM6) {
+		Enc.enc_increment = Enc.enc_counter - Enc.enc_prev;
+		Enc.enc_prev = Enc.enc_counter;
+		if (Enc.enc_increment < 500) {
+
+			Enc.enc_relative_counter += Enc.enc_increment;
+		}
+		buflen = sprintf((char*) buf,
+				"Enc.enc_counter = %d \t Enc.enc_increment = %d\r\n",
+				(int) Enc.enc_counter, (int) Enc.enc_increment);
+		CDC_Transmit_FS(buf, buflen);
+	}
+}
 
 void write_com() {
 	CDC_Transmit_FS((unsigned char*) buf_tx, strlen(buf_tx));
@@ -63,61 +34,8 @@ void app_init(void) {
 	for (int i = 0; i < BARR_ELBITS * BARR_COUNT; i += BARR_ELBITS) {
 		BARR_SET(State_flag, i);
 	}
-//-----------BUTTONS INITIALIZATION------------------------------
-	btn_up.Pin = BTN_UP_Pin;
-	btn_up.Port = BTN_UP_GPIO_Port;
-	btn_up.State = IDLE;
-	btn_up.Checked = 0;
 
-	btn_down.Pin = BTN_DOWN_Pin;
-	btn_down.Port = BTN_DOWN_GPIO_Port;
-	btn_down.State = IDLE;
-	btn_down.Checked = 0;
-
-	btn_in.Pin = BTN_IN_Pin;
-	btn_in.Port = BTN_IN_GPIO_Port;
-	btn_in.State = IDLE;
-	btn_in.Checked = 0;
-
-	btn_back.Pin = BTN_BACK_Pin;
-	btn_back.Port = BTN_BACK_GPIO_Port;
-	btn_back.State = IDLE;
-	btn_back.Checked = 0;
-// ----------------------------------------------------------------
-// --------- MOTOR INITIALIZATION ---------------------------------
-	motor_horizontal.Tim = &htim4;
-	motor_horizontal.Channel = TIM_CHANNEL_4;
-	motor_horizontal.Dirrection = MOTOR_DIR_FORWARD;
-	motor_horizontal.STEP_Pin = MOTOR_A_STEP_Pin;
-	motor_horizontal.STEP_Port = MOTOR_A_STEP_GPIO_Port;
-	motor_horizontal.ENA_Pin = MOTOR_A_ENA_Pin;
-	motor_horizontal.ENA_Port = MOTOR_A_ENA_GPIO_Port;
-	motor_horizontal.DIR_Pin = MOTOR_A_DIR_Pin;
-	motor_horizontal.DIR_Port = MOTOR_A_DIR_GPIO_Port;
-	motor_horizontal.Enable = 0;
-	motor_horizontal.Position = 0; // TODO
-
-	motor_vertical.Tim = &htim15;
-	motor_vertical.Channel = TIM_CHANNEL_1;
-	motor_vertical.Dirrection = MOTOR_DIR_UP;
-	motor_vertical.STEP_Pin = MOTOR_A_STEP_Pin;
-	motor_vertical.STEP_Port = MOTOR_A_STEP_GPIO_Port;
-	motor_vertical.ENA_Pin = MOTOR_A_ENA_Pin;
-	motor_vertical.ENA_Port = MOTOR_A_ENA_GPIO_Port;
-	motor_vertical.DIR_Pin = MOTOR_A_DIR_Pin;
-	motor_vertical.DIR_Port = MOTOR_A_DIR_GPIO_Port;
-	motor_vertical.Enable = 0;
-	motor_vertical.Position = 0; // TODO
-//------------------------------------------------------------------
-// --------ENDERS INITIALIZATION -----------------------------------
-	PE.Pin = ENDER_PE_Pin;
-	PE.Port = ENDER_PE_GPIO_Port;
-	Laser.Pin = ENDER_LASER_Pin;
-	Laser.Port = ENDER_LASER_GPIO_Port;
-	Endstop.Pin = ENDER_ENDSTOP_Pin;
-	Endstop.Port = ENDER_ENDSTOP_GPIO_Port;
-//------------------------------------------------------------------
-
+	void init_components();
 }
 
 void write_buttons_state_in_com(void) {
@@ -165,20 +83,6 @@ void check_debounce_flag(int bnum, uint16_t pin, GPIO_TypeDef *port,
 	}
 }
 
-void start_motor(Motor_t motor) {
-	HAL_GPIO_WritePin(motor.ENA_Port, motor.ENA_Pin, 1);
-	HAL_GPIO_WritePin(motor.DIR_Port, motor.DIR_Pin, motor.Dirrection);
-	HAL_TIMEx_OCN_Start(motor.Tim, motor.Channel);
-	motor.Enable = 1;
-}
-
-void stop_motor(Motor_t motor) {
-
-	HAL_GPIO_WritePin(motor.ENA_Port, motor.ENA_Pin, 0);
-	HAL_TIMEx_OCN_Stop(motor.Tim, motor.Channel);
-	motor.Enable = 0;
-}
-
 void zero_btns() {
 	btn_up.Checked = 0;
 	btn_down.Checked = 0;
@@ -187,11 +91,52 @@ void zero_btns() {
 }
 
 void showEnc() {
-	buflen = sprintf((char*) buf, "%d\r\n", (int) enc_counter);
+	buflen = sprintf((char*) buf, "%d\r\n", (int) Enc.enc_counter);
 	CDC_Transmit_FS(buf, buflen);
 }
 
 void app_loop(void) {
+
+#ifdef TEST_ASF_PE
+
+	if (PE.rising) {
+		PE.encoder_count_before = Enc.enc_counter;
+		PE.rising = 0;
+	}
+
+	if (PE.falling) {
+		PE.encoder_count_duaration = Enc.enc_counter - PE.encoder_count_before;
+		PE.falling = 0;
+
+		buflen =
+				sprintf((char*) buf,
+						"PE: колво импульсов энкодера до вкл датчика = %d \t продолжительность работы датчика в импульсах энкодера = %d \r\n",
+						(int) PE.encoder_count_before,
+						(int) PE.encoder_count_duaration);
+		CDC_Transmit_FS(buf, buflen);
+
+	}
+
+	if (ASF.rising) {
+		ASF.encoder_count_before = Enc.enc_counter;
+		ASF.rising = 0;
+	}
+
+	if (ASF.falling) {
+		ASF.encoder_count_duaration = Enc.enc_counter
+				- ASF.encoder_count_before;
+		ASF.falling = 0;
+
+		buflen =
+						sprintf((char*) buf,
+								"ASF: колво импульсов энкодера до вкл датчика = %d \t продолжительность работы датчика в импульсах энкодера = %d \r\n",
+								(int) ASF.encoder_count_before,
+								(int) ASF.encoder_count_duaration);
+				CDC_Transmit_FS(buf, buflen);
+	}
+
+#else
+
 	check_debounce_flag(1, btn_up.Pin, btn_up.Port, btn_up.Press_start_time); // btn_up
 	check_debounce_flag(9, btn_down.Pin, btn_down.Port,
 			btn_down.Press_start_time); 		// btn_down
@@ -199,7 +144,7 @@ void app_loop(void) {
 	check_debounce_flag(25, btn_back.Pin, btn_back.Port,
 			btn_back.Press_start_time);		// btn_back
 	check_debounce_flag(33, PE.Pin, PE.Port, PE.Detect_start_time);		// PE
-	check_debounce_flag(41, Laser.Pin, Laser.Port, Laser.Detect_start_time);// Laser
+	check_debounce_flag(41, ASF.Pin, ASF.Port, ASF.Detect_start_time);	// Laser
 	check_debounce_flag(49, Endstop.Pin, Endstop.Port,
 			Endstop.Detect_start_time);	// Endstop
 
@@ -208,6 +153,11 @@ void app_loop(void) {
 	btn_in.Checked = BARR_TEST(State_flag, 18);
 	btn_back.Checked = BARR_TEST(State_flag, 26);
 	Endstop.Checked = BARR_TEST(State_flag, 50);
+
+//	Enc.enc_increment = Enc.enc_counter - Enc.enc_prev;
+//	Enc.enc_prev = Enc.enc_counter;
+//	buflen = sprintf((char*) buf, "%d\r\n", (int) Enc.enc_counter);
+//	CDC_Transmit_FS(buf, buflen);
 
 //	buflen = sprintf((char*) buf, "Current state: %s\n\r",
 //			stateStrings[platenState]);
@@ -218,10 +168,6 @@ void app_loop(void) {
 #ifdef TESTING
 
 		platenState = READY_TO_PRINT;
-//		if (Endstop.Checked) {  // For testing!!!!!!!!!!!
-//			platenState = READY_TO_PRINT;
-//
-//		} else
 #endif
 		if (btn_up.Checked) {
 			platenState = SEND_UP;
@@ -246,7 +192,7 @@ void app_loop(void) {
 				platenState = INIT;
 
 			} else {
-				motor_vertical.Dirrection = MOTOR_DIR_UP;
+				set_motor_up(motor_vertical); //motor_vertical.Dirrection = MOTOR_DIR_UP;
 				start_motor(motor_vertical);
 			}
 
@@ -267,7 +213,7 @@ void app_loop(void) {
 				platenState = READY_TO_PRINT;
 
 			} else {
-				motor_vertical.Dirrection = MOTOR_DIR_DOWN;
+				set_motor_down(motor_vertical); // motor_vertical.Dirrection = MOTOR_DIR_DOWN;
 				start_motor(motor_vertical);
 			}
 
@@ -288,7 +234,7 @@ void app_loop(void) {
 			platenState = READY_TO_PRINT;
 
 		} else {
-			motor_horizontal.Dirrection = MOTOR_DIR_FORWARD;
+			set_motor_forward(motor_horizontal); //motor_horizontal.Dirrection = MOTOR_DIR_FORWARD;
 			start_motor(motor_horizontal);
 		}
 
@@ -305,7 +251,7 @@ void app_loop(void) {
 			platenState = INIT;
 
 		} else {
-			motor_horizontal.Dirrection = MOTOR_DIR_REVERSE;
+			set_motor_back(motor_horizontal); //motor_horizontal.Dirrection = MOTOR_DIR_REVERSE;
 			start_motor(motor_horizontal);
 		}
 
@@ -322,103 +268,88 @@ void app_loop(void) {
 		if (btn_back.Checked) {
 			platenState = SEND_BACK;
 		} else {
-			enc_difference = enc_counter - enc_prev_counter;
-			enc_prev_counter = enc_counter;
-			if (enc_difference > 2 && enc_difference < 500) {
-				buflen = sprintf((char*) buf, "Encoder speed = %d\r\n",
-						(int) enc_difference);
-				CDC_Transmit_FS(buf, buflen);
-				showEnc();
 
-				Start_count_encoder = enc_counter;
+			if (Enc.enc_increment > 5 && Enc.enc_increment < 500) {
 				buflen = sprintf((char*) buf, "Прокрутка перед печатью\r\n");
+								CDC_Transmit_FS(buf, buflen);
+				buflen = sprintf((char*) buf, "Значение энкодера = %d\r\n",
+						(int) Enc.enc_counter);
 				CDC_Transmit_FS(buf, buflen);
-				showEnc();
+
+				Enc.enc_relative_counter = 0;
 				platenState = SCROLLING;
+				ASF.Checked = 0;
+				PE.Checked = 0;
 			}
 
 		}
 	} else if (platenState == SCROLLING) {
 
-		if ((enc_counter - Start_count_encoder > PE_ENCODER_COUNT)
-				&& !PE_state) {
-			PE_state = 1;
-			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
+		if ((Enc.enc_relative_counter > PE_START_ENCODER_COUNT) && !PE.State) { // Включение датчика PE
+
+			turn_on(PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE.State);
+			PE.Checked = 1;
 			buflen = sprintf((char*) buf, "PE  включен\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
+
 		}
 
-		if ((enc_counter - Start_count_encoder > ASF_ENCODER_COUNT)
-				&& !ASF_state) {
+		if ((Enc.enc_relative_counter > ASF_ENCODER_COUNT) && !ASF.State && !ASF.Checked) { // Включение датчика ASF
 
-			ASF_Start_time_duration = HAL_GetTick();
-			ASF_state = 1;
-			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);
+			turn_on(ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
+			ASF.Start_time_duration = HAL_GetTick();
+			ASF.Checked = 1;
 			buflen = sprintf((char*) buf, "ASF включен\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
+
 		}
 
-		if ((HAL_GetTick() - ASF_Start_time_duration > ASF_DURATION_MILLIS)
-				&& ASF_state && ASF_Start_time_duration != 0) {
+		if ((HAL_GetTick() - ASF.Start_time_duration > ASF_DURATION_MILLIS)
+				&& ASF.State) { // Выключение датчика ASF
 
-			ASF_state = 0;
-			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF_state);
+			turn_off(ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
 			buflen = sprintf((char*) buf, "ASF отключен\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
 		}
 
-		if (enc_counter - Start_count_encoder > 2 * ENC_SCROLL) {
+		if (Enc.enc_relative_counter > 2 * ENC_SCROLL) {
 			platenState = PRINTING;
-			enc_prev_time = HAL_GetTick();
 			buflen = sprintf((char*) buf, "Печать начинается\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
 
 		}
-
-		// timeout
 
 	} else if (platenState == PRINTING) {
 
-		if (HAL_GetTick() - enc_prev_time > 1000) {
-			enc_prev_time = HAL_GetTick();
-			enc_difference = enc_counter - enc_prev_counter;
-			enc_prev_counter = enc_counter;
-
-			if (enc_difference > ENC_FAST_SCROLL_SPEED) {
-				platenState = ROLLER_EXTRACT;
-				Start_count_encoder = enc_counter;
-				buflen = sprintf((char*) buf, "Выталкивание валика\r\n");
-				CDC_Transmit_FS(buf, buflen);
-				showEnc();
-			}
-
+		if (Enc.enc_increment > ENC_FAST_SCROLL_SPEED) {
+			platenState = ROLLER_EXTRACT;
+//			Start_count_encoder = Enc.enc_counter;
+			Enc.enc_relative_counter = 0;
+			buflen = sprintf((char*) buf, "Выталкивание валика\r\n");
+			CDC_Transmit_FS(buf, buflen);
 		}
+
+//		}
 
 	} else if (platenState == ROLLER_EXTRACT) {
-		if ((enc_counter - Start_count_encoder > PE_ENCODER_COUNT)
-				&& PE_state) {
-			PE_state = 0;
-			HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
+		if ((Enc.enc_relative_counter > PE_END_ENCODER_COUNT) // Выключение датчика PE
+		&& PE.State) {
+			turn_off(PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
 			buflen = sprintf((char*) buf, "PE  отключен\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
 		}
 
-		enc_difference = enc_counter - enc_prev_counter;
-		enc_prev_counter = enc_counter;
-
-		if (enc_difference < 10) {
+		if (Enc.enc_increment < 10) {
 			platenState = READY_TO_PRINT; // ОСТАЕТСЯ НА КОНЦЕВИКЕ
 			buflen = sprintf((char*) buf, "Печать закончена\r\n");
 			CDC_Transmit_FS(buf, buflen);
-			showEnc();
 		}
 
 	}
+
+
+
+#endif
 }
 
 static inline void default_State_flag_switch(int bit_to_clear, int bit_to_set) {
@@ -427,6 +358,23 @@ static inline void default_State_flag_switch(int bit_to_clear, int bit_to_set) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+
+	if (GPIO_Pin == PE.Pin) {
+		if (HAL_GPIO_ReadPin(PE.Port, PE.Pin)) { // RISING EDGE
+			PE.rising = 1;
+		} else { // FALLING EDGE
+			PE.falling = 1;
+		}
+
+	}
+	if (GPIO_Pin == ASF.Pin) {
+		if (HAL_GPIO_ReadPin(ASF.Port, ASF.Pin)) { // RISING EDGE
+			ASF.rising = 1;
+		} else { // FALLING EDGE
+			ASF.falling = 1;
+		}
+	}
+
 	if (GPIO_Pin == btn_up.Pin) {
 		if (HAL_GPIO_ReadPin(btn_up.Port, btn_up.Pin) == GPIO_PIN_SET) {
 			btn_up.Press_start_time = HAL_GetTick();
@@ -481,7 +429,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	} else if (GPIO_Pin == ENDER_LASER_Pin) {
 		if (HAL_GPIO_ReadPin(ENDER_LASER_GPIO_Port, ENDER_LASER_Pin)
 				== GPIO_PIN_SET) {
-			Laser.Detect_start_time = HAL_GetTick();
+			ASF.Detect_start_time = HAL_GetTick();
 			default_State_flag_switch(40, 41);
 
 		} else {
