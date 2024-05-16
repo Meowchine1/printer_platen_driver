@@ -6,9 +6,9 @@
 
 // -------------------------------------------------------------------------------------------
 
-char buf_tx[100];
+char buf_tx[300];
 uint8_t buflen;
-uint8_t buf[100];
+uint8_t buf[300];
 
 // -----------------------------------Bit array MACRO and DEFINITION---------------------------
 typedef uint8_t BARR_ELTYPE;

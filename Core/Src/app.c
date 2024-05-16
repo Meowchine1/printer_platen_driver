@@ -1,5 +1,6 @@
 #include "app.h"
 
+
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM2) {
 		Enc.enc_counter = __HAL_TIM_GET_COUNTER(htim);
@@ -21,6 +22,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				"Enc.enc_counter = %d \t Enc.enc_increment = %d\r\n",
 				(int) Enc.enc_counter, (int) Enc.enc_increment);
 		CDC_Transmit_FS(buf, buflen);
+		buflen = sprintf((char*) buf, "Enc.enc_relative_counter = %d \r\n",
+				(int) Enc.enc_relative_counter);
+		CDC_Transmit_FS(buf, buflen);
 	}
 }
 
@@ -35,7 +39,7 @@ void app_init(void) {
 		BARR_SET(State_flag, i);
 	}
 
-	void init_components();
+	//init_components();
 }
 
 void write_buttons_state_in_com(void) {
@@ -128,11 +132,11 @@ void app_loop(void) {
 		ASF.falling = 0;
 
 		buflen =
-						sprintf((char*) buf,
-								"ASF: колво импульсов энкодера до вкл датчика = %d \t продолжительность работы датчика в импульсах энкодера = %d \r\n",
-								(int) ASF.encoder_count_before,
-								(int) ASF.encoder_count_duaration);
-				CDC_Transmit_FS(buf, buflen);
+				sprintf((char*) buf,
+						"ASF: колво импульсов энкодера до вкл датчика = %d \t продолжительность работы датчика в импульсах энкодера = %d \r\n",
+						(int) ASF.encoder_count_before,
+						(int) ASF.encoder_count_duaration);
+		CDC_Transmit_FS(buf, buflen);
 	}
 
 #else
