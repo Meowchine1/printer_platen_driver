@@ -1,6 +1,5 @@
 #include "app.h"
 
-
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM2) {
 		Enc.enc_counter = __HAL_TIM_GET_COUNTER(htim);
@@ -106,6 +105,8 @@ void app_loop(void) {
 	if (PE.rising) {
 		PE.encoder_count_before = Enc.enc_counter;
 		PE.rising = 0;
+		buflen = sprintf((char*) buf, "PE: включен \r\n");
+		CDC_Transmit_FS(buf, buflen);
 	}
 
 	if (PE.falling) {
@@ -124,6 +125,8 @@ void app_loop(void) {
 	if (ASF.rising) {
 		ASF.encoder_count_before = Enc.enc_counter;
 		ASF.rising = 0;
+		buflen = sprintf((char*) buf, "ASF: включен \r\n");
+		CDC_Transmit_FS(buf, buflen);
 	}
 
 	if (ASF.falling) {
