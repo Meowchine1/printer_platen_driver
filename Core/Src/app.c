@@ -285,8 +285,9 @@ void app_loop(void) {
 
 				Enc.enc_relative_counter = 0;
 				platenState = SCROLLING;
-				ASF.Checked = 0;
-				PE.Checked = 0;
+//				ASF.Checked = 0;
+//				PE.Checked = 0;
+				turn_on(PE); turn_on(ASF);
 			}
 
 		}
