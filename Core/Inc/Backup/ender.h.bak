@@ -29,8 +29,8 @@ typedef struct  {
 
 } Ender_t;
 
-void turn_on(Ender_t obj);
-void turn_off(Ender_t obj);
+void turn_on(Ender_t* obj);
+void turn_off(Ender_t* obj);
 
 
 

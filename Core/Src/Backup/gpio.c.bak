@@ -84,17 +84,11 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(PAUSE_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
-                           PBPin */
+                           PBPin PBPin PBPin */
   GPIO_InitStruct.Pin = BTN_UP_Pin|BTN_DOWN_Pin|ENDER_ENDSTOP_Pin|BTN_BACK_Pin
-                          |BTN_IN_Pin;
+                          |BTN_IN_Pin|ENDER_PE_Pin|ENDER_LASER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = ENDER_PE_Pin|ENDER_LASER_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
