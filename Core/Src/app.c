@@ -298,13 +298,19 @@ void app_loop(void) {
 //				PE.Checked = 0;
 				turn_on(&PE);
 				turn_on(&ASF);
-				PE.Checked = 0; ASF.Checked = 0;
+				PE.Checked = 1;
+				ASF.Checked = 1;
+				buflen = sprintf((char*) buf, "ASF включен\r\n");
+				CDC_Transmit_FS(buf, buflen);
+				buflen = sprintf((char*) buf, "PE  включен %d \r\n", PE.State);
+				CDC_Transmit_FS(buf, buflen);
 			}
 
 		}
 	} else if (platenState == SCROLLING) {
 
-		if ((Enc.enc_relative_counter > PE_START_ENCODER_COUNT) && !PE.State  && ! PE.Checked) { // Включение датчика PE
+		if ((Enc.enc_relative_counter > PE_START_ENCODER_COUNT) && !PE.State
+				&& !PE.Checked) { // Включение датчика PE
 
 			turn_on(&PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE.State);
 			PE.Checked = 1;
@@ -313,7 +319,8 @@ void app_loop(void) {
 
 		}
 
-		if (((Enc.enc_relative_counter > ASF_ENCODER_COUNT)) && !ASF.State && ! ASF.Checked) { // Включение датчика ASF
+		if (((Enc.enc_relative_counter > ASF_ENCODER_COUNT)) && !ASF.State
+				&& !ASF.Checked) { // Включение датчика ASF
 			ASF.Checked = 1;
 			turn_on(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
 			ASF.Start_time_duration = HAL_GetTick();
