@@ -282,9 +282,12 @@ void app_loop(void) {
 	} else if (platenState == READY_TO_PRINT) {
 
 		if (btn_back.Checked) {
+			turn_off(&PE);
+			turn_off(&ASF);
 			platenState = SEND_BACK;
 		} else {
-
+			turn_on(&PE);
+			turn_on(&ASF);
 			if (Enc.enc_increment > 5 && Enc.enc_increment < 500) {
 				buflen = sprintf((char*) buf, "Прокрутка перед печатью\r\n");
 				CDC_Transmit_FS(buf, buflen);
@@ -296,8 +299,7 @@ void app_loop(void) {
 				platenState = SCROLLING;
 //				ASF.Checked = 0;
 //				PE.Checked = 0;
-//				turn_on(&PE);
-//				turn_on(&ASF);
+
 //				PE.Checked = 1;
 //				ASF.Checked = 1;
 //				buflen = sprintf((char*) buf, "ASF включен\r\n");
@@ -309,22 +311,22 @@ void app_loop(void) {
 		}
 	} else if (platenState == SCROLLING) {
 
-		if ((Enc.enc_relative_counter > PE_START_ENCODER_COUNT) && !PE.State
+		if ((Enc.enc_relative_counter > PE_START_ENCODER_COUNT) && PE.State
 				&& !PE.Checked) { // Включение датчика PE
 
-			turn_on(&PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE.State);
+			turn_off(&PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE.State);
 			PE.Checked = 1;
-			buflen = sprintf((char*) buf, "PE  включен %d \r\n", PE.State);
+			buflen = sprintf((char*) buf, "PE  отключен %d \r\n", PE.State);
 			CDC_Transmit_FS(buf, buflen);
 
 		}
 
-		if (((Enc.enc_relative_counter > ASF_ENCODER_COUNT)) && !ASF.State
+		if (((Enc.enc_relative_counter > ASF_ENCODER_COUNT)) && ASF.State
 				&& !ASF.Checked) { // Включение датчика ASF
 			ASF.Checked = 1;
-			turn_on(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
+			turn_off(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
 			ASF.Start_time_duration = HAL_GetTick();
-			buflen = sprintf((char*) buf, "ASF включен\r\n");
+			buflen = sprintf((char*) buf, "ASF отключен\r\n");
 			CDC_Transmit_FS(buf, buflen);
 
 		}
@@ -337,15 +339,14 @@ void app_loop(void) {
 //			CDC_Transmit_FS(buf, buflen);
 //		}
 
-		if ((Enc.enc_relative_counter > ASF_ENCODER_COUNT_END) && ASF.State && !ASF.Checked) { // Выключение датчика ASF
+		if ((Enc.enc_relative_counter > ASF_ENCODER_COUNT_END) && !ASF.State) { // Выключение датчика ASF
 
-			turn_off(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
-			buflen = sprintf((char*) buf, "ASF отключен %d \r\n", ASF.State);
+			turn_on(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
+			buflen = sprintf((char*) buf, "ASF включен %d \r\n", ASF.State);
 			CDC_Transmit_FS(buf, buflen);
 		}
 
-		if (Enc.enc_relative_counter > 2870 && !ASF.State) {
-			turn_off(&ASF);
+		if (Enc.enc_relative_counter > 2870 && ASF.State) {
 			platenState = PRINTING;
 			buflen = sprintf((char*) buf, "Печать начинается\r\n");
 			CDC_Transmit_FS(buf, buflen);
