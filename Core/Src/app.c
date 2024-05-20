@@ -296,14 +296,14 @@ void app_loop(void) {
 				platenState = SCROLLING;
 //				ASF.Checked = 0;
 //				PE.Checked = 0;
-				turn_on(&PE);
-				turn_on(&ASF);
-				PE.Checked = 1;
-				ASF.Checked = 1;
-				buflen = sprintf((char*) buf, "ASF включен\r\n");
-				CDC_Transmit_FS(buf, buflen);
-				buflen = sprintf((char*) buf, "PE  включен %d \r\n", PE.State);
-				CDC_Transmit_FS(buf, buflen);
+//				turn_on(&PE);
+//				turn_on(&ASF);
+//				PE.Checked = 1;
+//				ASF.Checked = 1;
+//				buflen = sprintf((char*) buf, "ASF включен\r\n");
+//				CDC_Transmit_FS(buf, buflen);
+//				buflen = sprintf((char*) buf, "PE  включен %d \r\n", PE.State);
+//				CDC_Transmit_FS(buf, buflen);
 			}
 
 		}
