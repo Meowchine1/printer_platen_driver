@@ -349,7 +349,7 @@ void app_loop(void) {
 						&& !PE.State) {
 			turn_on(PE); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_PE_Pin, PE_state);
 			buflen = sprintf((char*) buf, "PE  вкключен\r\n");
-			DC_Transmit_FS(buf, buflen);
+			CDC_Transmit_FS(buf, buflen);
 		}
 
 		if (Enc.enc_increment > ENC_FAST_SCROLL_SPEED) {
