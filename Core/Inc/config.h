@@ -9,11 +9,13 @@
 
 static const uint32_t TABLE_LENGTH = 50;
 
-static const uint16_t PE_START_ENCODER_COUNT = 0; //ENC_SCROLL + 300; // количество импульсов энкодера перед началом печати,
+static const uint16_t PE_START_ENCODER_COUNT = 2223; // количество импульсов энкодера перед началом печати,
 														  // которое должно пройти перед тем как включить датчик PE
 
 static const uint16_t PE_END_ENCODER_COUNT = ENC_SCROLL + 300; // количество импульсов энкодера после завершения печати,
 														// которое должно пройти перед тем как выключить датчик PE
 
-static const uint16_t ASF_ENCODER_COUNT = 0; // количество импульсов энкодера, которое должно пройти перед тем как включить датчик ASF
+static const uint16_t ASF_ENCODER_COUNT = 1246; // количество импульсов энкодера, которое должно пройти перед тем как включить датчик ASF
+static const uint16_t ASF_ENCODER_COUNT_END = 2870;
+
 static const uint16_t ASF_DURATION_MILLIS = 3000; // Продолжительность работы датчика ASF в миллисекундах

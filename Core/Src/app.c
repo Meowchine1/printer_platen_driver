@@ -329,15 +329,22 @@ void app_loop(void) {
 
 		}
 
-		if ((HAL_GetTick() - ASF.Start_time_duration > ASF_DURATION_MILLIS)
-				&& ASF.State) { // Выключение датчика ASF
+//		if ((HAL_GetTick() - ASF.Start_time_duration > ASF_DURATION_MILLIS)
+//				&& ASF.State) { // Выключение датчика ASF
+//
+//			turn_off(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
+//			buflen = sprintf((char*) buf, "ASF отключен %d \r\n", ASF.State);
+//			CDC_Transmit_FS(buf, buflen);
+//		}
+
+		if ((Enc.enc_relative_counter > ASF_ENCODER_COUNT_END) && ASF.State && !ASF.Checked) { // Выключение датчика ASF
 
 			turn_off(&ASF); //HAL_GPIO_WritePin(GPIOA, GPIO_OUT_ASF_Pin, ASF.State);
 			buflen = sprintf((char*) buf, "ASF отключен %d \r\n", ASF.State);
 			CDC_Transmit_FS(buf, buflen);
 		}
 
-		if (Enc.enc_relative_counter > 2 * ENC_SCROLL) {
+		if (Enc.enc_relative_counter > 2870 && !ASF.State) {
 			turn_off(&ASF);
 			platenState = PRINTING;
 			buflen = sprintf((char*) buf, "Печать начинается\r\n");
