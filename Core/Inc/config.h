@@ -4,7 +4,7 @@
 
 // ------------------- MANAGEMENT DEFINITIONS --------------------------------------
 #define TESTING // Определение для отладки без кнопок перемещения столика
-#define TEST_ASF_PE // Определение для теста датчиков.
+//#define TEST_ASF_PE // Определение для теста датчиков.
 
 
 static const uint32_t TABLE_LENGTH = 50;
